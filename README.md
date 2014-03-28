@@ -15,6 +15,7 @@ Edit the global variable **actual** and change None to either 0 or 1.
 ## Adding a Player
 
 Edit the global variable predictions and add a player and her predictions.
+Please keep the players in alphabetical order.
 
 To check your data entry, call `print_player` with your new player's name, run
 the script, and check the data.
