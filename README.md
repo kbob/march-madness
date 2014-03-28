@@ -1,4 +1,4 @@
-# March Madness 2013
+# March Madness 2014
 
 A quick and dirty Python script to analyze people's progress on the
 March Madness pool.
