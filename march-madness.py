@@ -225,7 +225,7 @@ p_width = len(max(predictions, key=len))
 actual = [[0, 1, 1, 0,  1, 0, 1, 0,   0, 0, 1, 0,  0, 0, 0, 0,
            0, 0, 1, 0,  0, 0, 0, 0,   0, 0, 0, 0,  1, 1, 0, 0],
           [0, 1, 0, 0,  0, 1, 1, 0,   0, 1, 0, 1,  1, 1, 0, 1],
-          [0, 0, None, None, 0, 1, None, None],
+          [0, 0, 1, 1,  0, 1, 0, 1],
           [None, None, None, None],
           [None, None],
           [None]]
@@ -293,8 +293,8 @@ def score_range(player):
     return (min_score, max_score)
 
 
-# Example: check that Bob's data is entered correctly.
-# print_player('Bob')
+# Example: check that actual data is entered correctly.
+# print_player('Actual')
 
 
 for player in sorted(predictions):
