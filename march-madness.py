@@ -226,7 +226,7 @@ actual = [[0, 1, 1, 0,  1, 0, 1, 0,   0, 0, 1, 0,  0, 0, 0, 0,
            0, 0, 1, 0,  0, 0, 0, 0,   0, 0, 0, 0,  1, 1, 0, 0],
           [0, 1, 0, 0,  0, 1, 1, 0,   0, 1, 0, 1,  1, 1, 0, 1],
           [0, 0, 1, 1,  0, 1, 0, 1],
-          [None, None, None, None],
+          [0, 1, 1, 0],
           [None, None],
           [None]]
 
@@ -250,12 +250,10 @@ def make_tree(pred):
         prev = tree[col]
     return tree
 
-actual_tree = make_tree(actual)
-
 
 def print_player(player):
     if player == 'Actual':
-        tree = actual_tree
+        tree = make_tree(actual)
     else:
         tree = make_tree(predictions[player])
     print player
@@ -275,28 +273,64 @@ def print_player(player):
     print
 
 
-def score_range(player):
+def score_range(player, actual):
     p_tree = make_tree(predictions[player])
+    a_tree = make_tree(actual)
     min_score = 0
     ns = len(scores)
     max_score = sum(2**(ns - i - 1) * scores[i] for i in range(ns))
     for col in range(len(p_tree)):
         for row in range(len(p_tree[col])):
-            if p_tree[col][row] == actual_tree[col][row]:
+            if p_tree[col][row] == a_tree[col][row]:
                 min_score += scores[col]
             else:
-                a = actual_tree[col][row]
+                a = a_tree[col][row]
                 if a is not None:
                     max_score -= scores[col]
-                    if col and a not in p_tree[col - 1][2*row:2*row+2]:
-                        max_score -= scores[col]
+                elif col and a not in p_tree[col - 1][2*row:2*row+2]:
+                    max_score -= scores[col]
     return (min_score, max_score)
+
+
+def player_scores(actual):
+    return [(p,) + score_range(p, actual) for p in predictions]
+
+print player_scores(actual=actual)
+
+def show_scores(actual):
+    for player in sorted(predictions, key=lambda p: score_range(p, actual)[0]):
+        p_colon = player + ':'
+        print '%-*s %3s %3s' % ((p_width + 1, p_colon) + score_range(player, actual))
+
+
+def hypotheticals(a=actual):
+    a = [col[:] for col in a]
+    for i, col in enumerate(a):
+        for j, row in enumerate(col):
+            if row is None:
+                for outcome in (0, 1):
+                    a[i][j] = outcome
+                    for hy in hypotheticals(a):
+                        yield hy
+                return
+    yield a
+
 
 
 # Example: check that actual data is entered correctly.
 # print_player('Actual')
 
 
-for player in sorted(predictions):
-    p_colon = player + ':'
-    print '%-*s %3s %3s' % ((p_width + 1, p_colon) + score_range(player))
+show_scores(actual)
+print
+
+for hy in hypotheticals():
+    h_tree = make_tree(hy)
+    winner = h_tree[5][0]
+    print h_tree[4]
+    runner_up = [t for t in h_tree[4] if t != winner][0]
+    print '%s beats %s' % (teams[winner], teams[runner_up])
+    for (player, score, junk) in sorted(player_scores(hy), key=lambda ps: -ps[1])[:3]:
+        p_colon = player + ':'
+        print '%-*s %3s' % (p_width + 1, p_colon, score)
+    print
