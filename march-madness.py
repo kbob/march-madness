@@ -287,15 +287,16 @@ def score_range(player, actual):
                 a = a_tree[col][row]
                 if a is not None:
                     max_score -= scores[col]
-                elif col and a not in p_tree[col - 1][2*row:2*row+2]:
-                    max_score -= scores[col]
+                elif col:
+                    contenders = p_tree[col - 1][2*row:2*row+2]
+                    if None not in contenders and p_tree[col][row] not in contenders:
+                        max_score -= scores[col]
     return (min_score, max_score)
 
 
 def player_scores(actual):
     return [(p,) + score_range(p, actual) for p in predictions]
 
-print player_scores(actual=actual)
 
 def show_scores(actual):
     for player in sorted(predictions, key=lambda p: score_range(p, actual)[0]):
@@ -324,10 +325,10 @@ def hypotheticals(a=actual):
 show_scores(actual)
 print
 
+print 'Possible Outcomes'
 for hy in hypotheticals():
     h_tree = make_tree(hy)
     winner = h_tree[5][0]
-    print h_tree[4]
     runner_up = [t for t in h_tree[4] if t != winner][0]
     print '%s beats %s' % (teams[winner], teams[runner_up])
     for (player, score, junk) in sorted(player_scores(hy), key=lambda ps: -ps[1])[:3]:
